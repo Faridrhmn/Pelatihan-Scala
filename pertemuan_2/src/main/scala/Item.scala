@@ -1,9 +1,11 @@
+import scala.collection.mutable.ArrayBuffer
+
 // IMPLEMENTASI CASE CLASS
 case class Item(nama: String, var stok: Int, harga: Double)
 
-// IMPLEMENTASI CLASS
+// IMPLEMENTASI CLASS DENGAN MUTABLE ARRAYBUFFER
 class Inventory {
-  private var items = List(
+  private val items = ArrayBuffer(
     Item("Gelas", 17, 15000.0),
     Item("Piring", 6, 90000.0),
     Item("Botol", 3, 14000.0)
@@ -18,27 +20,30 @@ class Inventory {
   }
 
   def tambahBarang(nama: String, jumlah: Int, harga: Double): Unit = {
-    val barangAda = items.exists(_.nama == nama)
-    if (barangAda) { // KONDISI JIKA ADA BARANG YANG SAMA
-      items = items.map {
-        case i if i.nama == nama => i.copy(stok = i.stok + jumlah) // ANGGAP SEPERTI EDIT DENGAN ID NAMA
-        case i => i
-      }
-      println(s"Stok barang '$nama' ditambahkan sebanyak $jumlah.") // IMPLEMENRASI S UNTUK OUTPUT DENGAN MEMBAWA VARIABLE
-    } else { // KONDISI JIKA BARANG BERBEDA
-      items = Item(nama, jumlah, harga) :: items
-      println(s"Barang baru '$nama' ditambahkan ke inventori.")
+    val itemOpt = items.find(_.nama == nama) // BOOLEAN
+    itemOpt match {
+      case Some(item) => //
+        item.stok += jumlah // langsung ubah stok
+        println(s"Stok barang '$nama' ditambahkan sebanyak $jumlah.")
+      case None => // RETURN NULL / TIDAK DITEMUKAN
+        items += Item(nama, jumlah, harga)
+        println(s"Barang baru '$nama' ditambahkan ke inventori.")
     }
   }
 
   def keluarkanBarang(nama: String, jumlah: Int): Unit = {
-    // KURANGI STOK JIKA ITEM ADA
-    items = items.map {
-      case i if i.nama == nama && i.stok >= jumlah =>
-        i.copy(stok = i.stok - jumlah)
-      case i => i
+    items.find(_.nama == nama) match {
+      case Some(item) if item.stok >= jumlah =>
+        item.stok -= jumlah
+        println(s"Barang '$nama' dikeluarkan sebanyak $jumlah.")
+        if (item.stok == 0) {
+          items -= item
+          println(s"Stok barang '$nama' habis dan dihapus dari inventori.")
+        }
+      case Some(_) =>
+        println(s"Stok tidak mencukupi untuk mengeluarkan $jumlah unit dari '$nama'.")
+      case None =>
+        println(s"Barang '$nama' tidak ditemukan di inventori.")
     }
-    // HAPUS ITEM JIKA STOK HABIS
-    items = items.filter(_.stok > 0)
   }
 }
