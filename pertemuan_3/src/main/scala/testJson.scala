@@ -21,9 +21,9 @@ object testJson extends App {
       |}
       |""".stripMargin
   }
-  
+
 //  val jsone : JsObject = Json.parse(
-//    
+//
 //  )
 
   println(json.isInstanceOf[JsValue])
